@@ -6,7 +6,7 @@ HISTORY_FILE="chat_history.json"
 def load_history():
     if os.path.exists(HISTORY_FILE):
         with open(HISTORY_FILE,"r",encoding="utf-8") as f:
-            json.load(f)
+            return json.load(f)
     return []
 
 from dotenv import load_dotenv

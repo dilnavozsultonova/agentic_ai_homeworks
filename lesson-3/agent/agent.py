@@ -11,27 +11,27 @@ class Agent:
         db      : main DB instance (users, chat history)
         """
         self.room_id = room_id
-        self.db = db                      
+        self.db = db                     
         self.db_b = DB_B()               
 
         self.client = Client()
 
- 
         history = self.db.load_history(room_id)
 
         tools, self.tool_handlers = create_db_tools(self.db_b)
 
         self.config = types.GenerateContentConfig(
-        tools=tools,
-        system_instruction=(
-            "You are an assistant connected to a company database. "
-            "Whenever the user asks about employees, salaries, payroll, "
-            "or compensation, you MUST use the provided tools to get data "
-            "from the database instead of answering from general knowledge."
+            tools=tools,
+            system_instruction=(
+                "You are an assistant connected to a PRIVATE company database. "
+                "You MUST use ONLY the provided tools if you are asked about employees "
+                "Do NOT use any built-in SQL or database tools. "
+                "All employee and salary data MUST come from the provided tools."
+            )
         )
-)
 
-      
+
+
         self.chat = self.client.chats.create(
             model="gemini-3-flash-preview",
             config=self.config,
@@ -39,18 +39,32 @@ class Agent:
         )
 
     def ask(self, message: str) -> str:
-       
         self.db.save_message(self.room_id, "user", message)
 
         response = self.chat.send_message(message)
+        print("RAW PARTS:", response.candidates[0].content.parts)
 
-        
-        # part = response.candidates[0].content
+        function_call = None
 
-        
-        answer = response
+        for part in response.candidates[0].content.parts:
+            if part.function_call:
+                function_call = part.function_call
+                break
 
-        
+        if function_call:
+            tool_name = function_call.name
+            tool_args = function_call.args or {}
+
+            result = self.tool_handlers[tool_name](tool_args)
+
+            response = self.chat.send_message(
+                types.FunctionResponse(
+                    name=tool_name,
+                    response=result
+                )
+            )
+
+        answer = response.text
         self.db.save_message(self.room_id, "assistant", answer)
 
-        return answer
+        return answer 

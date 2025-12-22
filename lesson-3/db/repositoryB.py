@@ -7,13 +7,6 @@ class DB_B:
         self.session = SessionB
         
     def get_employee_by_id(self,employee_id):
-        """
-         Fetches FULL employee information FROM THE COMPANY DATABASE 
-            using a specific employee ID. 
-            You MUST use this tool whenever the user asks about a specific employee, 
-            employee details, employee salary, or employee department. 
-            Do NOT answer from general knowledge.
-        """
         session = self.session()
         try:
             employee = (
@@ -25,7 +18,7 @@ class DB_B:
             
             latest_salary = (
                 session.query(Salary)
-                .filter_by(Salary.employee_id==Employee.employee_id).
+                .filter(Salary.employee_id==Employee.employee_id).
                 order_by(Salary.effective_date.desc()).first()
             )
 

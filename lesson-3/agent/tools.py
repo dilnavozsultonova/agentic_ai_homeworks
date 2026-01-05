@@ -12,8 +12,7 @@ def create_db_tools(db: DB_B):
         name="get_employee_by_id",
         description=(
             """Fetches FULL employee information FROM THE COMPANY DATABASE 
-            using a specific employee ID. """
-
+            using a given employee ID. """
         ),
         parameters={
             "type": "object",
@@ -55,14 +54,16 @@ def create_db_tools(db: DB_B):
     )
 
     def get_employee_by_id(args):
+        print("Args: ",args)
         return db.get_employee_by_id(args["employee_id"])
+
 
     def get_top_employees(args):
         limit = args.get("limit", 10) if args else 10
         return db.get_top_employees(limit)
 
-    def highest_salary_per_department():
-        return db.get_highest_salary_per_department()
+    def highest_salary_per_department(args):
+        return db.get_highest_salary_per_department(args)
 
     handlers = {
         "get_employee_by_id": get_employee_by_id,

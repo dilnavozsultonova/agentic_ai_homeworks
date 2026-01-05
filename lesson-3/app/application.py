@@ -119,4 +119,4 @@ class Application:
                 command_id = int(input("Command ID: "))
                 self.commands[command_id]()
             except Exception as e:
-                print("ERROR:", e)
+                print("ERROR1:", e)

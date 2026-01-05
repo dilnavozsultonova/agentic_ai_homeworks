@@ -1,11 +1,12 @@
 import sys
 from getpass import getpass
 import hashlib
-from google.genai import Client
+from google.genai import Client,types
 from sqlalchemy import create_engine, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, declarative_base, relationship, sessionmaker
 from datetime import datetime
 from dotenv import load_dotenv
+
 
 load_dotenv(".env")
 
@@ -16,7 +17,6 @@ engine = create_engine(
     "&trusted_connection=yes"
 )
 Base = declarative_base()
-
 
 class User(Base):
     __tablename__ = "users"
@@ -173,6 +173,7 @@ class Agent:
         self.chat = self.client.chats.create(
             model="gemini-3-flash-preview",
             history=history
+            
         )
 
     def ask(self, message):
@@ -183,6 +184,13 @@ class Agent:
 
         self.db.save_message(self.room_id, "assistant", answer)
         return answer
+    
+    def db_tool(self,query:str)->str:
+        """
+        This function should go to the sql server database and then return the result according to information.
+        """
+    
+
 
 class Application:
     def __init__(self):

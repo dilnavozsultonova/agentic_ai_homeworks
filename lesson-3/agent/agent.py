@@ -30,8 +30,6 @@ class Agent:
             )
         )
 
-
-
         self.chat = self.client.chats.create(
             model="gemini-3-flash-preview",
             config=self.config,
@@ -42,27 +40,27 @@ class Agent:
         self.db.save_message(self.room_id, "user", message)
 
         response = self.chat.send_message(message)
-        print("RAW PARTS:", response.candidates[0].content.parts)
+        # print("RAW PARTS:", response.candidates[0].content.parts)
 
-        function_call = None
+        # function_call = None
 
-        for part in response.candidates[0].content.parts:
-            if part.function_call:
-                function_call = part.function_call
-                break
+        # for part in response.candidates[0].content.parts:
+        #     if part.function_call:
+        #         function_call = part.function_call
+        #         break
 
-        if function_call:
-            tool_name = function_call.name
-            tool_args = function_call.args or {}
+        # if function_call:
+        #     tool_name = function_call.name
+        #     tool_args = function_call.args or {}
 
-            result = self.tool_handlers[tool_name](tool_args)
+        #     result = self.tool_handlers[tool_name](tool_args)
 
-            response = self.chat.send_message(
-                types.FunctionResponse(
-                    name=tool_name,
-                    response=result
-                )
-            )
+        #     response = self.chat.send_message(
+        #         types.FunctionResponse(
+        #             name=tool_name,
+        #             response=result
+        #         )
+        #     
 
         answer = response.text
         self.db.save_message(self.room_id, "assistant", answer)
